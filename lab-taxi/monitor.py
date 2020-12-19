@@ -3,7 +3,7 @@ import sys
 import math
 import numpy as np
 
-def interact(env, agent, num_episodes=20000, window=100):
+def interact(env, agent, num_episodes=20000, window=100, is_qlearning=True):
     """ Monitor agent's performance.
     
     Params
@@ -30,6 +30,9 @@ def interact(env, agent, num_episodes=20000, window=100):
         state = env.reset()
         # initialize the sampled reward
         samp_reward = 0
+        # update epsilon (in case of Q-Learning)
+        if is_qlearning:
+            agent.epsilon = 1 / (i_episode + 1)
         while True:
             # agent selects an action
             action = agent.select_action(state)

@@ -3,7 +3,7 @@ from collections import defaultdict
 
 class Agent:
 
-    def __init__(self, nA=6):
+    def __init__(self, nA=6, epsilon=0.1, alpha=0.01, gamma=1):
         """ Initialize agent.
 
         Params
@@ -11,6 +11,9 @@ class Agent:
         - nA: number of actions available to the agent
         """
         self.nA = nA
+        self.epsilon = epsilon
+        self.alpha = alpha
+        self.gamma = gamma
         self.Q = defaultdict(lambda: np.zeros(self.nA))
 
     def select_action(self, state):
@@ -24,7 +27,10 @@ class Agent:
         =======
         - action: an integer, compatible with the task's action space
         """
-        return np.random.choice(self.nA)
+        if np.random.random_sample() > self.epsilon:
+            return np.argmax(self.Q[state])
+        else:
+            return np.random.choice(self.nA)
 
     def step(self, state, action, reward, next_state, done):
         """ Update the agent's knowledge, using the most recently sampled tuple.
@@ -37,4 +43,17 @@ class Agent:
         - next_state: the current state of the environment
         - done: whether the episode is complete (True or False)
         """
-        self.Q[state][action] += 1
+        if not done:
+            ## Q-Learning
+            self.Q[state][action] += self.alpha * (reward + self.gamma * np.max(self.Q[next_state]) - self.Q[state][action])
+            ## Expected Sarsa
+            # self.Q[state][action] += self.alpha * (reward + self.gamma * self.expected_Q(state) - self.Q[state][action])
+        else:
+            self.Q[state][action] += self.alpha * (reward - self.Q[state][action])
+        
+    def expected_Q(self, state):
+        policy_s = np.ones(self.nA) * (self.epsilon / self.nA)
+        best_action = np.argmax(self.Q[state])
+        policy_s[best_action] = 1 - self.epsilon + (self.epsilon / self.nA)
+        expected_Q_value = np.dot(self.Q[state], policy_s)
+        return expected_Q_value

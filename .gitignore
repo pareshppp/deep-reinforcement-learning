@@ -102,3 +102,14 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+
+
+# others
+*.pth
+*.zip
+.ipynb_checkpoints/
+Banana_Linux/
+VisualBanana_Linux/
+Reacher_Linux/
+Reacher_Linux_20/
